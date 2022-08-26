@@ -13,8 +13,7 @@ Write a program to find out time taken to execute getpid system call. Use time s
 unsigned long long rdtsc()
 {
     unsigned long long dst;
-    __asm__ __volatile__("rdtsc"
-                         : "=A"(dst));
+    __asm__ __volatile__("rdtsc": "=A"(dst));
     return dst;
 }
 
