@@ -1,5 +1,9 @@
 {
     "files.associations": {
-        "sched.h": "c"
-    }
+        "sched.h": "c",
+        "fcntl.h": "c",
+        "limits.h": "c",
+        "syslimits.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
