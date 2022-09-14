@@ -1,7 +1,8 @@
 // Pipariya Darshitkumar
 // MT2022035
 /*
-Write a program to create a message queue and print the key and message queue id.
+Write a program to receive messages from the message queue.
+a. with 0 as a flag
 */
 #include <stdio.h>
 #include <sys/ipc.h>

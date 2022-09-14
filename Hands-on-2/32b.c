@@ -3,32 +3,20 @@
 #include <sys/ipc.h>   // Import for `ftok`, `semget`, `semctl`
 #include <sys/sem.h>   // Import for `semget`, `semctl`
 #include <sys/types.h> // Import for `open`, `lseek`, `ftok`, `semget`, `semctl`
-#include <sys/stat.h>  // Import for `open`
-#include <fcntl.h>     // Import for `open`
-#include <unistd.h>    // Import for `write`, `lseek`, `_exit`
 #include <stdio.h>     // Import for `perror` & `printf`
-
+#include <sys/shm.h>
+#include<unistd.h>
 void main()
 {
-    char *ticketFile = "./ticket-file.txt"; // Name of the file used for storing the ticker number
-
-    int fileDescriptor;            // File descriptor of the ticket file
-    ssize_t readBytes, writeBytes; // Number of bytes read from / written to the ticket file
-    off_t lseekOffset;
-    int data; // Ticket data
-
+    key_t shaKey=ftok(".",666);
+    int shmid=shmget(shaKey,1024,IPC_CREAT|0744); // Semaphore Identifier
+    char *shmPointer;
+    shmPointer=shmat(shmid,(void *)0,0);
     key_t semKey;      // Semaphore Key
     int semIdentifier; // Semaphore Identifier
     int semctlStatus;  // Determines success of `semctl` call
     int semopStatus;   // Determines success of `semop` call
 
-    // Create a new ticket file / open an exisiting one
-    fileDescriptor = open(ticketFile, O_CREAT | O_RDWR, S_IRWXU);
-    if (fileDescriptor == -1)
-    {
-        perror("Error while creating / opening the ticket file!");
-        _exit(0);
-    }
 
     // Defines a semaphore's structure
     union semun
@@ -39,7 +27,9 @@ void main()
         struct seminfo *__buf; /* Buffer for IPC_INFO (Linux-specific) */
     } semSet;
 
-    semKey = ftok(".", 331);
+
+    // semaphore key
+    semKey = ftok(".", 332);
     if (semKey == -1)
     {
         perror("Error while computing key!");
@@ -83,37 +73,11 @@ void main()
     printf("Obtained lock on critical section!\n");
     printf("Now entering critical section!\n");
     // =========== Start of Critical Section ===========
-
-    readBytes = read(fileDescriptor, &data, sizeof(data));
-    if (readBytes == -1)
-    {
-        perror("Error while reading from ticket file!");
-        _exit(0);
-    }
-    else if (readBytes == 0) // Ticket file has no data
-        data = 1;
-    else
-    {
-        data += 1;
-        lseekOffset = lseek(fileDescriptor, 0, SEEK_SET);
-        if (lseekOffset == -1)
-        {
-            perror("Error while seeking!");
-            _exit(0);
-        }
-    }
-    // sleep(5);
-    writeBytes = write(fileDescriptor, &data, sizeof(data));
-    if (writeBytes == -1)
-    {
-        perror("Error while writing to ticket file!");
-        _exit(1);
-    }
-
-    printf("Your ticker number is - %d\n", data);
-
+    
+    printf("write in shared memory\n");
+    scanf("%[^\n]", shmPointer);
+    printf("data from shared memory : %s\n", shmPointer);
     printf("Press enter to exit from critical section!\n");
-    // getchar();
 
     // =========== End of Critical Section =============
 
@@ -125,5 +89,4 @@ void main()
         perror("Error while operating on semaphore!");
         _exit(1);
     }
-    close(fileDescriptor);
 }

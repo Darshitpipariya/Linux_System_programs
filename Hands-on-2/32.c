@@ -23,7 +23,7 @@ typedef union semun
     int val;                   // val for set val /* 1 for binary else > 1 for Counting Semaphore */
     struct semid_ds *buf;      // Data structure describing a set of semaphores.
     unsigned short int *array; // array for GETALL, SETALL
-    struct seminfo *__buf;// Buffer for IPC_INFO
+    struct seminfo *__buf;     // Buffer for IPC_INFO
 } semun;
 int main(int argc, char *argv[])
 {
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
         arg.val = 1;                   // 1 for binary
         semctl(semid, 0, SETVAL, arg); // semaphore number 0// set val of binary semaphore to 0;
     }
-    
+
     struct sembuf sem_op; // for semaphore operation
     sem_op.sem_num = 0;
     sem_op.sem_flg = 0;
@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
     semop(semid, &sem_op, 1);
 
     // critical zone;
+    printf("inside Critical section");
+    getchar();
     int data;
     int fd = open("./17_ticket.txt", O_RDWR | O_CREAT, S_IRWXU);
     if (fd == -1)
@@ -56,7 +58,7 @@ int main(int argc, char *argv[])
         perror("Error while opening file!");
         return 0;
     }
-    sleep(5);
+
     int n = read(fd, &data, sizeof(data));
     if (n == 0)
     {
@@ -67,11 +69,10 @@ int main(int argc, char *argv[])
         data += 1;
         lseek(fd, 0, SEEK_SET); // reset seek
     }
-
     write(fd, &data, sizeof(data));
     printf("ticket number is : %d\t \n", data);
     printf("ticket number is stored in file\n");
-    //
+
     printf("out of critical zone\n");
 
     // use semaphore to unlock critical section
