@@ -14,6 +14,7 @@ d. remove the created semaphore
 #include <stdio.h>
 #include <sys/shm.h>
 #include <unistd.h>
+#include <fcntl.h>
 void main()
 {
     key_t shaKey = ftok(".", 666);
@@ -35,7 +36,7 @@ void main()
     } semSet;
 
     // semaphore key
-    semKey = ftok(".", 332);
+    semKey = ftok(".", 333);
     if (semKey == -1)
     {
         perror("Error while computing key!");
@@ -52,7 +53,7 @@ void main()
             _exit(1);
         }
 
-        semSet.val = 1; // Set a binary semaphore
+        semSet.val = 2; // Set a counting semaphore
         semctlStatus = semctl(semIdentifier, 0, SETVAL, semSet);
         if (semctlStatus == -1)
         {
@@ -77,13 +78,30 @@ void main()
     }
 
     printf("Obtained lock on critical section!\n");
-    printf("Now entering critical section!\n");
     // =========== Start of Critical Section ===========
 
-    printf("write in shared memory\n");
-    scanf("%[^\n]", shmPointer);
-    printf("data from shared memory : %s\n", shmPointer);
-    printf("entering to exit from critical section!\n");
+    printf("inside Critical section");
+    getchar();
+    int data;
+    int fd = open("./32c_ticket.txt", O_RDWR | O_CREAT, S_IRWXU);
+    if (fd == -1)
+    {
+        perror("Error while opening file!");
+    }
+
+    int n = read(fd, &data, sizeof(data));
+    if (n == 0)
+    {
+        data = 1;
+    }
+    else
+    {
+        data += 1;
+        lseek(fd, 0, SEEK_SET); // reset seek
+    }
+    write(fd, &data, sizeof(data));
+    printf("ticket number is : %d\t \n", data);
+    printf("ticket number is stored in file\n");
 
     // =========== End of Critical Section =============
 

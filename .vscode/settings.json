@@ -3,7 +3,8 @@
         "sched.h": "c",
         "fcntl.h": "c",
         "limits.h": "c",
-        "syslimits.h": "c"
+        "syslimits.h": "c",
+        "8D.C": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

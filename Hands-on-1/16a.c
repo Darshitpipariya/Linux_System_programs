@@ -21,7 +21,7 @@ int main(int argv, char *argc[])
     fcntl(fd, F_SETLKW, &lock);
     printf("File is locked.\npress enter to unlock file\n");
     getchar();
-    lock.l_type = F_ULOCK; // change lock type to unlock to unlock file
+    lock.l_type = F_UNLCK; // change lock type to unlock to unlock file
     fcntl(fd, F_SETLKW, &lock);
     return 0; 
 }

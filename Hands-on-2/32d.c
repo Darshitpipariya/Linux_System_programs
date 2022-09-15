@@ -35,7 +35,7 @@ void main()
     } semSet;
 
     // semaphore key
-    semKey = ftok(".", 332);
+    semKey = ftok(".", 335);
     if (semKey == -1)
     {
         perror("Error while computing key!");
@@ -93,6 +93,16 @@ void main()
     if (semopStatus == -1)
     {
         perror("Error while operating on semaphore!");
+        _exit(1);
+    }
+
+
+    //deleting semaphore
+    printf("deleting binary semaphore");
+    semctlStatus = semctl(semIdentifier, 0, IPC_RMID);
+    if (semctlStatus == -1)
+    {
+        perror("Error while deleting a binary sempahore!");
         _exit(1);
     }
 }
